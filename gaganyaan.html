@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Gaganyaan — India's Leap into Human Spaceflight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: {
+    fontFamily: { grotesk: ['"Space Grotesk"','sans-serif'], inter: ['Inter','sans-serif'] },
+    colors: { cosmic: { cyan: '#22d3ee', saffron: '#FF9933', indiagreen: '#138808' } }
+  }}
+}
+</script>
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+<style>
+  html{scroll-behavior:smooth}
+  body{
+    background:linear-gradient(180deg,#070d26 0%,#040614 40%,#010104 100%);
+    color:#e5e9f2;font-family:'Inter',sans-serif;overflow-x:hidden;
+  }
+  ::selection{background:rgba(34,211,238,.35)}
+  .glass{
+    background:rgba(255,255,255,.05);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:1.25rem;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 40px rgba(0,0,0,.45);
+    transition:border-color .4s,box-shadow .4s,transform .4s;
+  }
+  .glass:hover{border-color:rgba(34,211,238,.45);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 8px 44px rgba(34,211,238,.14)}
+  .glass-hot{
+    background:rgba(255,255,255,.06);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(34,211,238,.5);
+    border-radius:1.25rem;
+    box-shadow:0 0 34px rgba(34,211,238,.22),inset 0 1px 0 rgba(255,255,255,.1);
+  }
+  .neon{color:#22d3ee;text-shadow:0 0 18px rgba(34,211,238,.55)}
+  .grad-text{background:linear-gradient(95deg,#FF9933 0%,#f8fafc 38%,#22d3ee 72%,#4ade80 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .tri-bar{background:linear-gradient(90deg,#FF9933 0 33.4%,#f4f4f4 33.4% 66.7%,#138808 66.7% 100%)}
+  .rv{opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.22,1,.36,1),transform 1s cubic-bezier(.22,1,.36,1)}
+  .rv-in{opacity:1;transform:none}
+  /* ---- Rocket stages ---- */
+  .stage{cursor:pointer;transition:transform 1.5s cubic-bezier(.22,1,.36,1),filter .45s,opacity .45s}
+  .stage:hover{filter:drop-shadow(0 0 16px rgba(34,211,238,.85))}
+  .stage.active{filter:drop-shadow(0 0 18px var(--c))}
+  .stage.dim{opacity:.35}
+  .sep-line{transition:opacity 1.2s ease .3s}
+  /* ---- Carousel ---- */
+  .no-scrollbar::-webkit-scrollbar{display:none}
+  .no-scrollbar{scrollbar-width:none}
+  .snap-card{scroll-snap-align:center}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .floaty{animation:floaty 5s ease-in-out infinite}
+  @keyframes scrollDot{0%{transform:translateY(0);opacity:1}80%{transform:translateY(16px);opacity:0}100%{opacity:0}}
+  .scroll-dot{animation:scrollDot 1.8s ease-in-out infinite}
+  .tick{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef } = React;
+
+/* ================= STARFIELD (parallax + twinkle) ================= */
+function Starfield(){
+  const ref = useRef(null);
+  useEffect(()=>{
+    const canvas = ref.current, ctx = canvas.getContext('2d');
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let w, h, stars = [], raf, scrollY = 0;
+    function init(){
+      stars = [];
+      const n = Math.floor(window.innerWidth * window.innerHeight / 2200);
+      for(let i=0;i<n;i++){
+        stars.push({
+          x: Math.random()*w, y: Math.random()*h,
+          r: (Math.random()*1.35 + .3) * DPR,
+          d: Math.random()*0.6 + .2,
+          tw: Math.random()*Math.PI*2,
+          ts: Math.random()*0.025 + .006,
+          hue: Math.random()<0.10 ? 190 : (Math.random()<0.05 ? 35 : 0)
+        });
+      }
+    }
+    function resize(){
+      w = canvas.width = window.innerWidth * DPR;
+      h = canvas.height = window.innerHeight * DPR;
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      init();
+    }
+    function draw(){
+      ctx.clearRect(0,0,w,h);
+      for(const s of stars){
+        s.x -= s.d * 0.12 * DPR;
+        if(s.x < -4) s.x = w + 4;
+        s.tw += s.ts;
+        const a = 0.3 + 0.7 * Math.abs(Math.sin(s.tw));
+        let y = (s.y + scrollY * s.d * 0.32) % h; if(y < 0) y += h;
+        ctx.beginPath(); ctx.arc(s.x, y, s.r, 0, 6.2832);
+        ctx.fillStyle = s.hue ? `hsla(${s.hue},95%,72%,${a})` : `rgba(255,255,255,${a})`;
+        ctx.fill();
+      }
+      raf = requestAnimationFrame(draw);
+    }
+    const onScroll = () => { scrollY = window.scrollY * DPR; };
+    resize();
+    window.addEventListener('resize', resize);
+    window.addEventListener('scroll', onScroll, {passive:true});
+    draw();
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); window.removeEventListener('scroll', onScroll); };
+  }, []);
+  return <canvas ref={ref} className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true"/>;
+}
+
+/* ================= REVEAL ON SCROLL ================= */
+function useReveal(){
+  useEffect(()=>{
+    const io = new IntersectionObserver(entries=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('rv-in'); io.unobserve(e.target); } });
+    }, {threshold: 0.15});
+    document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+    return ()=>io.disconnect();
+  }, []);
+}
+
+/* ================= NAV ================= */
+function Nav(){
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(()=>{
+    const f = ()=>setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', f, {passive:true}); f();
+    return ()=>window.removeEventListener('scroll', f);
+  }, []);
+  return (
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-2' : 'py-4'}`}>
+      <div className="h-[3px] tri-bar opacity-90"></div>
+      <nav className="glass mx-4 md:mx-10 mt-2 px-5 py-3 flex items-center justify-between rounded-2xl">
+        <a href="#top" className="flex items-center gap-3">
+          <svg width="30" height="30" viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="20" r="18" stroke="#22d3ee" strokeWidth="1.6" opacity=".9"/>
+            <path d="M20 6 L24 20 L20 34 L16 20 Z" fill="#FF9933" opacity=".95"/>
+            <circle cx="20" cy="20" r="3.4" fill="#f8fafc"/>
+          </svg>
+          <span className="font-grotesk font-700 tracking-[.25em] text-sm md:text-base text-white">GAGANYAAN</span>
+        </a>
+        <div className="hidden md:flex items-center gap-8 font-grotesk text-sm tracking-widest text-slate-300">
+          <a href="#mission" className="hover:text-cosmic-cyan transition-colors">MISSION</a>
+          <a href="#crew" className="hover:text-cosmic-cyan transition-colors">CREW</a>
+          <a href="#rocket" className="hover:text-cosmic-cyan transition-colors">HLVM3</a>
+        </div>
+        <a href="#rocket" className="hidden md:inline-block font-grotesk text-xs tracking-widest px-4 py-2 rounded-xl border border-cosmic-cyan/50 text-cosmic-cyan hover:bg-cosmic-cyan/10 transition-colors">EXPLORE VEHICLE</a>
+      </nav>
+    </header>
+  );
+}
+
+/* ================= HERO ================= */
+function Hero(){
+  return (
+    <section id="top" className="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-6 pt-28 pb-16">
+      <p className="rv font-grotesk tracking-[.5em] text-xs md:text-sm text-cosmic-cyan mb-6">ISRO · HUMAN SPACEFLIGHT PROGRAMME</p>
+      <h1 className="rv font-grotesk font-700 text-4xl md:text-6xl lg:text-7xl leading-tight max-w-5xl" style={{transitionDelay:'120ms'}}>
+        Gaganyaan: <span className="grad-text">India's Leap</span><br/>into Human Spaceflight
+      </h1>
+      <p className="rv max-w-2xl mt-8 text-slate-300/90 text-base md:text-lg leading-relaxed" style={{transitionDelay:'240ms'}}>
+        The Human Spaceflight Programme that will carry Indian astronauts to Low Earth Orbit —
+        engineered, launched, and recovered on Indian soil and in Indian seas.
+      </p>
+      <div className="rv flex flex-wrap items-center justify-center gap-4 mt-10" style={{transitionDelay:'360ms'}}>
+        <a href="#rocket" className="glass-hot font-grotesk tracking-widest text-sm px-7 py-3.5 text-white hover:scale-105 transition-transform">MEET THE HLVM3</a>
+        <a href="#mission" className="glass font-grotesk tracking-widest text-sm px-7 py-3.5 text-slate-200">MISSION BRIEF</a>
+      </div>
+      <div className="rv flex flex-wrap justify-center gap-3 mt-12" style={{transitionDelay:'480ms'}}>
+        {['3 ASTRONAUTS','400 KM LEO','3-DAY MISSION','SPLASHDOWN · INDIAN WATERS'].map(t=>(
+          <span key={t} className="glass px-4 py-2 font-grotesk text-[11px] md:text-xs tracking-[.2em] text-slate-300">{t}</span>
+        ))}
+      </div>
+      <div className="mt-16 flex flex-col items-center gap-2 text-slate-400">
+        <div className="w-6 h-10 rounded-full border border-slate-500/70 flex justify-center pt-2">
+          <div className="w-1 h-2 rounded-full bg-cosmic-cyan scroll-dot"></div>
+        </div>
+        <span className="font-grotesk text-[10px] tracking-[.3em]">SCROLL</span>
+      </div>
+    </section>
+  );
+}
+
+/* ================= MISSION ================= */
+const STATS = [
+  {v:'3', label:'Crew Members', d:'A three-person Indian crew rides in the pressurized Crew Module.', c:'#f8fafc'},
+  {v:'400', unit:'km', label:'Low Earth Orbit', d:'Gaganyaan targets a circular LEO at 400 km altitude.', c:'#22d3ee'},
+  {v:'3', label:'Days in Orbit', d:'A fully independent orbital mission with safe-return guarantee.', c:'#FF9933'},
+  {v:'640', unit:'t', label:'Lift-off Mass', d:'Fully fuelled, the HLVM3 is the heaviest rocket India has ever flown — now human-rated.', c:'#4ade80'},
+];
+function Mission(){
+  return (
+    <section id="mission" className="relative z-10 px-6 md:px-16 lg:px-24 py-28">
+      <p className="rv font-grotesk tracking-[.45em] text-xs text-cosmic-cyan mb-4">01 · MISSION OBJECTIVE</p>
+      <h2 className="rv font-grotesk font-700 text-3xl md:text-5xl max-w-3xl leading-tight" style={{transitionDelay:'120ms'}}>
+        A 3-day voyage to <span className="neon">400&nbsp;km</span> — and safely home again.
+      </h2>
+      <p className="rv max-w-3xl mt-6 text-slate-300/85 leading-relaxed" style={{transitionDelay:'220ms'}}>
+        Gaganyaan's core objective is to demonstrate India's capability to launch a crew of
+        <strong className="text-white"> three members to a 400&nbsp;km Low Earth Orbit</strong>, sustain them in an
+        earth-like environment for a <strong className="text-white">3-day mission</strong>, and return them safely with a
+        <strong className="text-white"> splashdown in Indian sea waters</strong> — a complete end-to-end indigenous human spaceflight capability.
+      </p>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-14">
+        {STATS.map((s,i)=>(
+          <div key={s.label} className="rv glass p-7" style={{transitionDelay:`${i*120}ms`}}>
+            <div className="font-grotesk font-700 text-5xl tick" style={{color:s.c, textShadow:`0 0 24px ${s.c}66`}}>
+              {s.v}{s.unit && <span className="text-xl ml-1">{s.unit}</span>}
+            </div>
+            <div className="font-grotesk tracking-widest text-sm text-white mt-3">{s.label}</div>
+            <p className="text-sm text-slate-400 mt-2 leading-relaxed">{s.d}</p>
+          </div>
+        ))}
+      </div>
+      <div className="rv glass p-8 mt-10" style={{transitionDelay:'200ms'}}>
+        <p className="font-grotesk tracking-[.3em] text-xs text-slate-400 mb-4">FLIGHT MANIFEST · UNCREWED FIRST</p>
+        <p className="text-slate-300/85 leading-relaxed max-w-4xl">
+          Before humans fly, ISRO qualifies every system with uncrewed test missions. <strong className="text-white">Vyommitra</strong>,
+          the half-humanoid robot astronaut, will occupy the crew cabin on these flights — sensing, reporting and surviving the
+          environment humans will later experience. A successful uncrewed series paves the way for the first Indian crew in orbit.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/* ================= CREW ================= */
+const CREW = [
+  {name:'Prasanth Balakrishnan Nair', role:'Group Captain · IAF', note:'Astronaut-Designate, Gaganyaan. Veteran fighter pilot and test pilot.', tag:'PC', c:'#FF9933'},
+  {name:'Ajit Krishnan', role:'Group Captain · IAF', note:'Astronaut-Designate, Gaganyaan. Fighter pilot with extensive test experience.', tag:'AK', c:'#22d3ee'},
+  {name:'Angad Pratap', role:'Group Captain · IAF', note:'Astronaut-Designate, Gaganyaan. Fighter pilot selected for the human spaceflight programme.', tag:'AP', c:'#f8fafc'},
+  {name:'Shubhanshu Shukla', role:'Group Captain · IAF', note:'Astronaut-Designate who flew to the ISS as mission pilot on Axiom-4 (June 2025).', tag:'SS', c:'#4ade80'},
+  {name:'Vyommitra', role:'Half-Humanoid Robot', note:'ISRO\'s "friend in space" — flying the uncrewed Gaganyaan test missions to certify the crew cabin.', tag:'VY', c:'#22d3ee', robot:true},
+];
+function Crew(){
+  return (
+    <section id="crew" className="relative z-10 px-6 md:px-16 lg:px-24 py-28">
+      <p className="rv font-grotesk tracking-[.45em] text-xs text-cosmic-cyan mb-4">02 · THE CREW</p>
+      <h2 className="rv font-grotesk font-700 text-3xl md:text-5xl leading-tight" style={{transitionDelay:'120ms'}}>
+        Four stars of the <span className="grad-text">Indian Air Force</span> — and one robot.
+      </h2>
+      <p className="rv max-w-2xl mt-6 text-slate-300/85 leading-relaxed" style={{transitionDelay:'200ms'}}>
+        In February 2024, ISRO announced its four astronaut-designates — all Group Captains of the Indian Air Force.
+        Training them, and the cabin they'll ride in, is Vyommitra.
+      </p>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-5 mt-14">
+        {CREW.map((p,i)=>(
+          <div key={p.name} className="rv glass p-6 flex flex-col" style={{transitionDelay:`${i*110}ms`}}>
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center font-grotesk font-700 text-lg mb-5"
+                 style={{background:`${p.c}18`, border:`1px solid ${p.c}55`, color:p.c, boxShadow:`0 0 22px ${p.c}22`}}>
+              {p.tag}
+            </div>
+            <h3 className="font-grotesk font-600 text-white leading-snug">{p.name}</h3>
+            <p className="font-grotesk text-[11px] tracking-[.2em] mt-2" style={{color:p.c}}>{p.role.toUpperCase()}</p>
+            <p className="text-sm text-slate-400 mt-3 leading-relaxed">{p.note}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ================= HLVM3 ROCKET ================= */
+const PARTS = [
+  { id:'ces', name:'Crew Escape System', short:'CES', c:'#FF9933',
+    desc:'Quick-acting solid motors designed to pull the Crew Module to a safe distance within seconds in the event of a launchpad or ascent emergency.',
+    spec:['Solid rocket escape motors, activated in milliseconds','Covers low-altitude and high-altitude abort envelopes','Jettisoned via tower-separation once ascent is safe'] },
+  { id:'cm', name:'Crew Module', short:'CM', c:'#22d3ee',
+    desc:'The heart of Gaganyaan — a pressurized, double-walled cabin sustaining an earth-like environment for the three-member crew, wrapped in a Thermal Protection System for the fires of re-entry.',
+    spec:['Pressurized, double-walled structure for crew survival','Earth-like environment: air, pressure & temperature control','Ablative Thermal Protection System for atmospheric re-entry','Parachute-assisted soft splashdown in Indian waters'] },
+  { id:'sm', name:'Service Module', short:'SM', c:'#22d3ee',
+    desc:'The unpressurized workhorse mated beneath the Crew Module — together they form the Orbital Module (OM), the spacecraft that lives in orbit.',
+    spec:['Unpressurized structure carrying propulsion & avionics','Orbital manoeuvring, attitude control & de-boost burns','Power generation and thermal regulation for the CM'] },
+  { id:'c25', name:'C25 Cryogenic Stage', short:'C25', c:'#a78bfa',
+    desc:'The cryogenic upper stage that delivers the Orbital Module to its precise 400 km parking orbit with graceful, high-efficiency thrust.',
+    spec:['Indigenous CE-20 cryogenic engine','Liquid Hydrogen / Liquid Oxygen propellants','Provides the final orbital velocity for OM insertion'] },
+  { id:'l110', name:'L110 Core Stage', short:'L110', c:'#4ade80',
+    desc:'The liquid propellant core stage — the backbone of the LVM3 that burns through the dense atmosphere before handing over to the cryo stage.',
+    spec:['Twin Vikas liquid engines','UH25 / N2O4 hypergolic propellants','Rigid spine carrying the full Gaganyaan stack uphill'] },
+  { id:'s200', name:'S200 Boosters', short:'S200', c:'#f87171',
+    desc:'Twin solid rocket strap-on motors that ignite together to hurl the 640-tonne stack off the pad with massive, thunderous liftoff thrust.',
+    spec:['World-class solid boosters among the largest ever flown','Each packed with ~160+ tonnes of solid propellant','Burn for ~130 seconds, then jettisoned in pairs'] },
+];
+const OFFS = { ces:-78, cm:-38, sm:6, c25:56, l110:126, s200:126 };
+
+function RocketSVG({active, setActive, exploded}){
+  const p = id => PARTS.find(x=>x.id===id);
+  const st = (id, extra) => ({
+    className:`stage ${active===id?'active':''} ${active && active!==id?'dim':''}`,
+    style:{ transform:`translateY(${exploded ? OFFS[id] : 0}px)`, '--c': p(id).c },
+    onMouseEnter:()=>setActive(id), onClick:()=>setActive(id)
+  });
+  return (
+    <svg viewBox="0 0 420 1000" className="w-full max-w-[340px] mx-auto floaty" role="img" aria-label="Human-Rated LVM3 exploded diagram">
+      {/* dashed centre spine */}
+      <line x1="210" y1="20" x2="210" y2="980" stroke="rgba(148,163,184,.25)" strokeWidth="1" strokeDasharray="3 7" className="sep-line" style={{opacity: exploded?1:0}}/>
+      {/* orbit ring */}
+      <ellipse cx="210" cy="176" rx="150" ry="30" fill="none" stroke="rgba(34,211,238,.28)" strokeDasharray="4 8" className="sep-line" style={{opacity: exploded?1:0}}/>
+
+      {/* CES */}
+      <g {...st('ces')}>
+        <path d="M210 22 L205 60 L215 60 Z" fill="#FF9933"/>
+        <line x1="210" y1="58" x2="178" y2="118" stroke="#94a3b8" strokeWidth="2.5"/>
+        <line x1="210" y1="58" x2="242" y2="118" stroke="#94a3b8" strokeWidth="2.5"/>
+        <line x1="210" y1="58" x2="210" y2="118" stroke="#94a3b8" strokeWidth="2.5"/>
+        <rect x="192" y="84" width="36" height="26" rx="5" fill="#FF9933" opacity=".92"/>
+        <path d="M192 110 L188 126 L200 112 Z" fill="#c2410c"/>
+        <path d="M228 110 L232 126 L220 112 Z" fill="#c2410c"/>
+        <circle cx="210" cy="70" r="3.4" fill="#fde68a"/>
+      </g>
+
+      {/* Crew Module */}
+      <g {...st('cm')}>
+        <path d="M172 214 L184 158 L210 124 L236 158 L248 214 Z" fill="#e2e8f0" opacity=".95"/>
+        <path d="M196 152 L210 132 L224 152 L210 164 Z" fill="#0ea5e9" opacity=".85"/>
+        <path d="M172 214 L248 214 L244 224 L176 224 Z" fill="#94a3b8"/>
+      </g>
+
+      {/* Service Module */}
+      <g {...st('sm')}>
+        <rect x="176" y="232" width="68" height="86" rx="8" fill="#94a3b8" opacity=".9"/>
+        <rect x="176" y="232" width="68" height="14" rx="7" fill="#64748b"/>
+        <line x1="190" y1="252" x2="190" y2="306" stroke="#475569" strokeWidth="2"/>
+        <line x1="210" y1="252" x2="210" y2="306" stroke="#475569" strokeWidth="2"/>
+        <line x1="230" y1="252" x2="230" y2="306" stroke="#475569" strokeWidth="2"/>
+        <path d="M186 318 L234 318 L226 334 L194 334 Z" fill="#334155"/>
+      </g>
+
+      {/* C25 */}
+      <g {...st('c25')}>
+        <rect x="178" y="352" width="64" height="108" rx="9" fill="#cbd5e1" opacity=".92"/>
+        <rect x="178" y="352" width="64" height="12" rx="6" fill="#7c3aed" opacity=".8"/>
+        <text x="210" y="412" textAnchor="middle" fontFamily="Space Grotesk" fontSize="15" fill="#1e293b" fontWeight="700">C25</text>
+        <path d="M188 460 L232 460 L224 478 L196 478 Z" fill="#475569"/>
+        <path d="M204 478 L216 478 L212 494 L208 494 Z" fill="#1e293b"/>
+      </g>
+
+      {/* L110 */}
+      <g {...st('l110')}>
+        <rect x="164" y="506" width="92" height="192" rx="10" fill="#e2e8f0" opacity=".94"/>
+        <rect x="164" y="506" width="92" height="14" rx="7" fill="#16a34a" opacity=".85"/>
+        <text x="210" y="606" textAnchor="middle" fontFamily="Space Grotesk" fontSize="16" fill="#1e293b" fontWeight="700">L110</text>
+        <line x1="186" y1="532" x2="186" y2="686" stroke="#94a3b8" strokeWidth="2"/>
+        <line x1="234" y1="532" x2="234" y2="686" stroke="#94a3b8" strokeWidth="2"/>
+        <path d="M172 698 L248 698 L238 722 L182 722 Z" fill="#334155"/>
+        <path d="M178 722 L202 722 L196 744 L184 744 Z" fill="#1e293b"/>
+        <path d="M218 722 L242 722 L236 744 L224 744 Z" fill="#1e293b"/>
+      </g>
+
+      {/* S200 boosters */}
+      <g {...st('s200')}>
+        <g>
+          <path d="M108 516 L128 496 L148 516 Z" fill="#f87171"/>
+          <rect x="108" y="516" width="40" height="176" rx="8" fill="#fca5a5" opacity=".95"/>
+          <rect x="108" y="560" width="40" height="10" fill="#b91c1c" opacity=".8"/>
+          <rect x="108" y="630" width="40" height="10" fill="#b91c1c" opacity=".8"/>
+          <path d="M112 692 L144 692 L138 714 L118 714 Z" fill="#7f1d1d"/>
+        </g>
+        <g>
+          <path d="M272 516 L292 496 L312 516 Z" fill="#f87171"/>
+          <rect x="272" y="516" width="40" height="176" rx="8" fill="#fca5a5" opacity=".95"/>
+          <rect x="272" y="560" width="40" height="10" fill="#b91c1c" opacity=".8"/>
+          <rect x="272" y="630" width="40" height="10" fill="#b91c1c" opacity=".8"/>
+          <path d="M276 692 L308 692 L302 714 L282 714 Z" fill="#7f1d1d"/>
+        </g>
+      </g>
+      {/* exhaust glow */}
+      <ellipse cx="210" cy="770" rx="60" ry="16" fill="url(#flame)" className="sep-line" style={{opacity: exploded?0:1}}/>
+      <defs>
+        <radialGradient id="flame" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="rgba(34,211,238,.8)"/>
+          <stop offset="100%" stopColor="rgba(34,211,238,0)"/>
+        </radialGradient>
+      </defs>
+    </svg>
+  );
+}
+
+function PartCard({part, hot, onPick}){
+  return (
+    <div onClick={onPick} className={`${hot?'glass-hot':'glass'} p-6 md:p-8 cursor-pointer`}>
+      <div className="flex items-center gap-3 mb-4">
+        <span className="font-grotesk font-700 text-xs tracking-[.25em] px-3 py-1.5 rounded-lg"
+              style={{background:`${part.c}1a`, border:`1px solid ${part.c}66`, color:part.c}}>{part.short}</span>
+        <h3 className="font-grotesk font-600 text-xl text-white">{part.name}</h3>
+      </div>
+      <p className="text-slate-300/85 leading-relaxed">{part.desc}</p>
+      <ul className="mt-5 space-y-2.5">
+        {part.spec.map(s=>(
+          <li key={s} className="flex gap-3 text-sm text-slate-400 leading-relaxed">
+            <span className="mt-2 w-1.5 h-1.5 rounded-full shrink-0" style={{background:part.c, boxShadow:`0 0 8px ${part.c}`}}></span>{s}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function Rocket(){
+  const [active, setActive] = useState('ces');
+  const [exploded, setExploded] = useState(false);
+  const secRef = useRef(null);
+  useEffect(()=>{
+    const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ setExploded(true); io.disconnect(); } }), {threshold:0.25});
+    if(secRef.current) io.observe(secRef.current);
+    return ()=>io.disconnect();
+  }, []);
+  const part = PARTS.find(p=>p.id===active);
+  return (
+    <section id="rocket" ref={secRef} className="relative z-10 px-6 md:px-16 lg:px-24 py-28">
+      <p className="rv font-grotesk tracking-[.45em] text-xs text-cosmic-cyan mb-4">03 · THE LAUNCH VEHICLE</p>
+      <h2 className="rv font-grotesk font-700 text-3xl md:text-5xl leading-tight" style={{transitionDelay:'120ms'}}>
+        Human-Rated LVM3 — <span className="grad-text">HLVM3</span>
+      </h2>
+      <p className="rv max-w-2xl mt-6 text-slate-300/85 leading-relaxed" style={{transitionDelay:'200ms'}}>
+        India's heaviest rocket, human-rated for the first time. Scroll here and the vehicle stages separate into
+        an exploded view — <span className="text-white">hover or tap any stage</span> to read its ISRO engineering brief.
+      </p>
+
+      {/* Desktop layout */}
+      <div className="hidden md:grid lg:grid-cols-2 gap-10 items-start mt-14">
+        <div className="glass p-8">
+          <RocketSVG active={active} setActive={setActive} exploded={exploded}/>
+          <p className="text-center font-grotesk text-[11px] tracking-[.3em] text-slate-500 mt-4">
+            {exploded ? 'EXPLODED VIEW · STAGES SEPARATED' : 'SCROLL TO SEPARATE STAGES'}
+          </p>
+        </div>
+        <div className="sticky top-32">
+          <PartCard part={part} hot={true} onPick={()=>{}}/>
+          <div className="flex flex-wrap gap-2 mt-5">
+            {PARTS.map(p=>(
+              <button key={p.id} onClick={()=>setActive(p.id)}
+                className={`font-grotesk text-[11px] tracking-[.2em] px-3.5 py-2 rounded-xl transition-all ${active===p.id?'glass-hot text-white':'glass text-slate-400'}`}>
+                {p.short}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile: swipeable carousel */}
+      <div className="md:hidden mt-12">
+        <div className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-4 -mx-6 px-6">
+          {PARTS.map(p=>(
+            <div key={p.id} className="snap-card min-w-[86%]">
+              <PartCard part={p} hot={p.id===active} onPick={()=>setActive(p.id)}/>
+            </div>
+          ))}
+        </div>
+        <p className="text-center font-grotesk text-[10px] tracking-[.3em] text-slate-500 mt-2">← SWIPE TO EXPLORE STAGES →</p>
+      </div>
+    </section>
+  );
+}
+
+/* ================= FOOTER ================= */
+function Footer(){
+  return (
+    <footer className="relative z-10 mt-10">
+      <div className="h-[3px] tri-bar"></div>
+      <div className="glass mx-4 md:mx-10 my-8 p-8 flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl">
+        <div>
+          <p className="font-grotesk font-700 tracking-[.3em] text-white">GAGANYAAN</p>
+          <p className="text-sm text-slate-400 mt-2 max-w-md">
+            Educational concept experience based on ISRO's public mission data. Built with respect for the scientists of the Indian Space Research Organisation.
+          </p>
+        </div>
+        <p className="font-grotesk text-xs tracking-[.25em] text-slate-500">चंद्रमा से आगे · BEYOND THE MOON</p>
+      </div>
+    </footer>
+  );
+}
+
+function App(){
+  useReveal();
+  return (
+    <React.Fragment>
+      <Starfield/>
+      <Nav/>
+      <main className="relative">
+        <Hero/>
+        <Mission/>
+        <Crew/>
+        <Rocket/>
+      </main>
+      <Footer/>
+    </React.Fragment>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
