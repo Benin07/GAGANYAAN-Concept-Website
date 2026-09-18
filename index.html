@@ -4,17 +4,186 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gaganyaan — India's Leap into Human Spaceflight</title>
-    <meta name="description" content="An application built with Google AI Studio." />
+    <meta name="description" content="Explore India's Gaganyaan human spaceflight programme, its astronauts, and the G1 test flight." />
     <meta property="og:title" content="Gaganyaan — India's Leap into Human Spaceflight" />
-    <meta property="og:description" content="An application built with Google AI Studio." />
+    <meta property="og:description" content="A visual journey through India's human spaceflight programme." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --ink: #081421;
+        --deep: #0b1e2f;
+        --paper: #f3f0e9;
+        --muted: #aeb8bd;
+        --line: rgba(238, 242, 237, .18);
+        --saffron: #f4a238;
+        --blue: #5eb4d1;
+        --white: #f7f5ef;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; background: var(--ink); color: var(--white); font-family: Manrope, sans-serif; line-height: 1.5; }
+      a { color: inherit; text-decoration: none; }
+      img { display: block; max-width: 100%; }
+      button { color: inherit; font: inherit; }
+
+      .site-header { align-items: center; display: flex; justify-content: space-between; left: 0; padding: 28px clamp(20px, 5vw, 72px); position: absolute; right: 0; top: 0; z-index: 5; }
+      .brand { align-items: center; display: flex; font-size: .78rem; font-weight: 800; gap: 12px; letter-spacing: .16em; text-transform: uppercase; }
+      .brand-mark { border: 1px solid var(--saffron); border-radius: 50%; display: grid; height: 34px; place-items: center; width: 34px; }
+      .brand-mark::after { background: var(--saffron); border-radius: 50%; content: ''; height: 8px; width: 8px; }
+      .nav { display: flex; gap: clamp(16px, 3vw, 40px); }
+      .nav a { color: #d8e0e1; font-family: 'DM Mono', monospace; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; transition: color .25s ease; }
+      .nav a:hover { color: var(--saffron); }
+
+      .hero { min-height: 720px; overflow: hidden; position: relative; }
+      .hero::after { background: linear-gradient(90deg, rgba(5, 14, 23, .82), rgba(5, 14, 23, .18) 65%, rgba(5, 14, 23, .45)), linear-gradient(0deg, var(--ink) 0%, transparent 32%); content: ''; inset: 0; position: absolute; z-index: 1; }
+      .hero-image { height: 100%; inset: 0; object-fit: cover; object-position: center; position: absolute; width: 100%; }
+      .hero-content { max-width: 800px; padding: 210px clamp(20px, 10vw, 150px) 130px; position: relative; z-index: 2; }
+      .eyebrow { color: var(--saffron); font-family: 'DM Mono', monospace; font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; }
+      h1, h2, h3, p { margin-top: 0; }
+      h1 { font-size: clamp(3.4rem, 9vw, 8.8rem); letter-spacing: -.08em; line-height: .88; margin: 22px 0 30px; max-width: 900px; }
+      .hero-copy { color: #d4dcdd; font-size: clamp(1rem, 1.6vw, 1.25rem); max-width: 540px; }
+      .hero-link { align-items: center; display: inline-flex; font-family: 'DM Mono', monospace; font-size: .72rem; gap: 14px; letter-spacing: .1em; margin-top: 30px; text-transform: uppercase; }
+      .hero-link span { align-items: center; border: 1px solid var(--saffron); border-radius: 50%; display: flex; font-size: 1rem; height: 40px; justify-content: center; transition: background .25s ease, color .25s ease; width: 40px; }
+      .hero-link:hover span { background: var(--saffron); color: var(--ink); }
+      .scroll-note { bottom: 36px; color: #b9c1c2; font-family: 'DM Mono', monospace; font-size: .63rem; left: clamp(20px, 10vw, 150px); letter-spacing: .1em; position: absolute; text-transform: uppercase; z-index: 2; }
+
+      .intro { background: var(--paper); color: var(--ink); display: grid; gap: 40px; grid-template-columns: 1fr 1.2fr; padding: clamp(72px, 12vw, 170px) clamp(20px, 10vw, 150px); }
+      .intro h2 { font-size: clamp(2.5rem, 5vw, 5rem); letter-spacing: -.07em; line-height: .96; margin: 0; max-width: 500px; }
+      .intro p { color: #46535a; font-size: clamp(1.05rem, 1.7vw, 1.35rem); margin: 0; max-width: 630px; }
+      .intro strong { color: var(--saffron); font-weight: 600; }
+
+      .section { padding: clamp(72px, 10vw, 140px) clamp(20px, 10vw, 150px); }
+      .section-heading { align-items: end; display: flex; gap: 30px; justify-content: space-between; margin-bottom: 50px; }
+      .section-heading h2 { font-size: clamp(2.4rem, 5vw, 5.3rem); letter-spacing: -.075em; line-height: .95; margin: 14px 0 0; max-width: 650px; }
+      .section-heading p { color: var(--muted); font-size: .95rem; margin: 0; max-width: 280px; }
+
+      .feature-grid { align-items: stretch; display: grid; gap: 28px; grid-template-columns: minmax(0, 1.25fr) minmax(250px, .75fr); }
+      .image-card { min-height: 560px; overflow: hidden; position: relative; }
+      .image-card img { height: 100%; object-fit: cover; position: absolute; transition: transform .7s cubic-bezier(.2,.75,.25,1), filter .5s ease; width: 100%; }
+      .image-card:hover img { filter: saturate(1.15); transform: scale(1.06); }
+      .image-card::after { background: linear-gradient(0deg, rgba(5, 13, 21, .85), transparent 60%); content: ''; inset: 0; position: absolute; }
+      .image-label { bottom: 30px; left: 30px; position: absolute; right: 30px; z-index: 1; }
+      .image-label h3 { font-size: clamp(1.6rem, 3vw, 3rem); letter-spacing: -.05em; margin-bottom: 7px; }
+      .image-label p { color: #c8d0d0; font-size: .9rem; margin: 0; }
+      .feature-copy { align-self: center; border-top: 1px solid var(--line); padding-top: 26px; }
+      .number { color: var(--saffron); font-family: 'DM Mono', monospace; font-size: .76rem; }
+      .feature-copy h3 { font-size: clamp(1.8rem, 3vw, 3rem); letter-spacing: -.06em; line-height: 1.05; margin: 22px 0; }
+      .feature-copy p { color: var(--muted); font-size: 1rem; }
+      .detail-list { border-top: 1px solid var(--line); margin: 34px 0 0; padding: 0; }
+      .detail-list li { border-bottom: 1px solid var(--line); color: #dce1de; display: flex; font-family: 'DM Mono', monospace; font-size: .73rem; justify-content: space-between; padding: 15px 0; }
+      .detail-list li span:last-child { color: var(--saffron); }
+
+      .paper-section { background: var(--paper); color: var(--ink); }
+      .paper-section .section-heading p, .paper-section .feature-copy p { color: #556167; }
+      .paper-section .feature-copy { border-color: rgba(8, 20, 33, .2); }
+      .paper-section .detail-list { border-color: rgba(8, 20, 33, .2); }
+      .paper-section .detail-list li { border-color: rgba(8, 20, 33, .2); color: #263741; }
+      .paper-section .detail-list li span:last-child { color: #c56d12; }
+
+      .slider-wrap { position: relative; }
+      .slider { display: grid; grid-auto-columns: minmax(260px, 42%); grid-auto-flow: column; gap: 18px; overflow-x: auto; overscroll-behavior-inline: contain; padding-bottom: 18px; scrollbar-color: var(--saffron) transparent; scroll-snap-type: x mandatory; }
+      .slide { aspect-ratio: 4 / 5; overflow: hidden; position: relative; scroll-snap-align: start; }
+      .slide img { height: 100%; object-fit: cover; transition: transform .7s ease; width: 100%; }
+      .slide:hover img { transform: scale(1.07); }
+      .slide::after { background: linear-gradient(0deg, rgba(3, 14, 24, .85), transparent 55%); content: ''; inset: 0; position: absolute; }
+      .slide-caption { bottom: 22px; left: 22px; position: absolute; z-index: 1; }
+      .slide-caption small { color: var(--saffron); font-family: 'DM Mono', monospace; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; }
+      .slide-caption h3 { font-size: clamp(1.3rem, 2.3vw, 2rem); letter-spacing: -.05em; margin: 7px 0 0; }
+      .slider-controls { display: flex; gap: 8px; }
+      .slider-button { background: transparent; border: 1px solid rgba(8, 20, 33, .35); border-radius: 50%; cursor: pointer; height: 44px; transition: background .25s ease, color .25s ease; width: 44px; }
+      .slider-button:hover { background: var(--ink); color: var(--paper); }
+
+      .statement { background: var(--saffron); color: var(--ink); padding: clamp(80px, 13vw, 190px) clamp(20px, 10vw, 150px); }
+      .statement p { font-size: clamp(2.5rem, 6vw, 7.2rem); letter-spacing: -.08em; line-height: .95; margin: 0; max-width: 1050px; }
+      .statement em { font-family: Georgia, serif; font-weight: 400; }
+      footer { color: #9ca9ab; display: flex; font-family: 'DM Mono', monospace; font-size: .65rem; justify-content: space-between; letter-spacing: .08em; padding: 26px clamp(20px, 10vw, 150px); text-transform: uppercase; }
+
+      .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s ease, transform .8s ease; }
+      .reveal.visible { opacity: 1; transform: translateY(0); }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } .reveal { opacity: 1; transform: none; } }
+      @media (max-width: 700px) {
+        .site-header { padding-top: 20px; }
+        .nav { display: none; }
+        .hero { min-height: 650px; }
+        .hero-image { object-position: 60% center; }
+        .hero-content { padding-top: 180px; }
+        .intro, .feature-grid { grid-template-columns: 1fr; }
+        .section-heading { align-items: start; flex-direction: column; margin-bottom: 32px; }
+        .image-card { min-height: 420px; }
+        .slider { grid-auto-columns: 78%; }
+        footer { flex-direction: column; gap: 8px; }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Gaganyaan home"><span class="brand-mark"></span><span>Gaganyaan / 01</span></a>
+      <nav class="nav" aria-label="Primary navigation"><a href="#mission">Mission</a><a href="#crew">Crew</a><a href="#g1">G1 Flight</a></nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <img class="hero-image" src="/images/Gaganyaan-India.jpg" alt="Gaganyaan spacecraft orbiting above Earth" fetchpriority="high" />
+        <div class="hero-content">
+          <span class="eyebrow">Indian human spaceflight programme</span>
+          <h1 id="hero-title">A new orbit<br /><em>for India.</em></h1>
+          <p class="hero-copy">Gaganyaan is a bold step toward sending Indian astronauts into low Earth orbit — and bringing them home safely.</p>
+          <a class="hero-link" href="#mission">Explore the mission <span aria-hidden="true">↓</span></a>
+        </div>
+        <span class="scroll-note">Scroll to discover / 01—04</span>
+      </section>
+
+      <section class="intro reveal" id="mission" aria-labelledby="intro-title">
+        <h2 id="intro-title">The sky is no longer the limit.</h2>
+        <p>Designed by ISRO, Gaganyaan will establish the foundation for a sustained Indian human spaceflight programme. From rigorous training to uncrewed testing, every milestone brings the country closer to its first crewed mission.<br /><br /><strong>Designed in India. Built for the universe.</strong></p>
+      </section>
+
+      <section class="section reveal" aria-labelledby="mission-title">
+        <div class="section-heading"><div><span class="eyebrow">01 / The proving ground</span><h2 id="mission-title">Every launch<br />begins with a test.</h2></div><p>Before astronauts fly, the vehicle must prove itself. The TV-D1 test flight was a decisive step toward human-rated spaceflight.</p></div>
+        <div class="feature-grid">
+          <article class="image-card"><img src="/images/Gaganyaan-mission.jpg" alt="Gaganyaan mission and launch vehicle infographic" loading="lazy" /><div class="image-label"><h3>TV-D1 Mission</h3><p>Learning, testing, and moving forward.</p></div></article>
+          <div class="feature-copy"><span class="number">MISSION / TV-D1</span><h3>Safety is the first destination.</h3><p>The crew escape system demonstrated its ability to separate the crew module from the launch vehicle in an emergency — a crucial rehearsal for the people who will one day ride inside.</p><ul class="detail-list"><li><span>Test flight</span><span>TV-D1</span></li><li><span>Escape altitude</span><span>13.5 km</span></li><li><span>Programme</span><span>Gaganyaan</span></li></ul></div>
+        </div>
+      </section>
+
+      <section class="section paper-section reveal" id="crew" aria-labelledby="crew-title">
+        <div class="section-heading"><div><span class="eyebrow">02 / The people</span><h2 id="crew-title">Four explorers.<br />One shared horizon.</h2></div><p>The astronaut-designates carry the ambition of a nation into a new era of discovery.</p><div class="slider-controls"><button class="slider-button" type="button" data-direction="prev" aria-label="Previous image">←</button><button class="slider-button" type="button" data-direction="next" aria-label="Next image">→</button></div></div>
+        <div class="slider-wrap"><div class="slider" id="crew-slider">
+          <article class="slide"><img src="/images/The-names-of-the-astronaut.jpg" alt="Gaganyaan astronaut designates" loading="lazy" /><div class="slide-caption"><small>Human spaceflight</small><h3>The first crew</h3></div></article>
+          <article class="slide"><img src="/images/Gaganyaan-India.jpg" alt="Gaganyaan spacecraft above Earth" loading="lazy" /><div class="slide-caption"><small>Mission view</small><h3>Earth, from above</h3></div></article>
+          <article class="slide"><img src="/images/Gaganyaan-mission.jpg" alt="Gaganyaan launch mission details" loading="lazy" /><div class="slide-caption"><small>Preparation</small><h3>Built for the journey</h3></div></article>
+        </div></div>
+      </section>
+
+      <section class="section reveal" id="g1" aria-labelledby="g1-title">
+        <div class="section-heading"><div><span class="eyebrow">03 / The vehicle</span><h2 id="g1-title">G1: a rehearsal<br />for the real thing.</h2></div><p>An uncrewed test flight of the human-rated launch vehicle marks the next chapter in this story.</p></div>
+        <div class="feature-grid">
+          <div class="feature-copy"><span class="number">FLIGHT / G1</span><h3>Power, precision, preparedness.</h3><p>G1 will validate the launch vehicle, orbital module, recovery systems, and mission operations as one complete system — without a crew on board.</p><ul class="detail-list"><li><span>Vehicle</span><span>HLVM3</span></li><li><span>Flight type</span><span>Uncrewed</span></li><li><span>Orbit</span><span>Low Earth</span></li></ul></div>
+          <article class="image-card"><img src="/images/Gaganyaan-G1-Wallpaper.jpg" alt="Gaganyaan G1 launch vehicle at the launch tower" loading="lazy" /><div class="image-label"><h3>Gaganyaan G1</h3><p>The vehicle takes shape against the night sky.</p></div></article>
+        </div>
+      </section>
+
+      <section class="statement reveal"><p>“We are not just reaching space. We are <em>opening a path</em> for everyone who comes after.”</p></section>
+    </main>
+
+    <footer><span>ISRO / Gaganyaan programme</span><span>Made for the next horizon</span></footer>
+    <script>
+      const slider = document.querySelector('#crew-slider');
+      document.querySelectorAll('.slider-button').forEach((button) => {
+        button.addEventListener('click', () => {
+          const distance = slider.clientWidth * 0.72;
+          slider.scrollBy({ left: button.dataset.direction === 'next' ? distance : -distance, behavior: 'smooth' });
+        });
+      });
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => { if (entry.isIntersecting) { entry.target.classList.add('visible'); revealObserver.unobserve(entry.target); } });
+      }, { threshold: 0.12 });
+      document.querySelectorAll('.reveal').forEach((section) => revealObserver.observe(section));
+    </script>
   </body>
 </html>
-
